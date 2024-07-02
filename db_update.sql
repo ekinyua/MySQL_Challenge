@@ -50,3 +50,23 @@ INSERT INTO Project_Team (ProjectID, EmployeeID, IsTeamLead) VALUES
 (8, 1, TRUE), (8, 4, FALSE), (8, 5, FALSE),
 (9, 2, TRUE), (9, 3, FALSE), (9, 6, FALSE),
 (10, 1, TRUE), (10, 4, FALSE), (10, 7, FALSE);
+
+UPDATE Projects p
+JOIN Project_Team pt ON p.ProjectID = pt.ProjectID
+JOIN Employees e ON pt.EmployeeID = e.EmployeeID
+SET p.TeamLead = e.EmployeeName
+WHERE pt.IsTeamLead = TRUE;
+
+-- Step 2: Populate the Clients column
+UPDATE Projects p
+JOIN Clients c ON p.ClientID = c.ClientID
+SET p.Clients = c.ClientName;
+
+-- Step 2: Populate the TeamMembers column
+UPDATE Projects p
+SET p.TeamMembers = (
+    SELECT GROUP_CONCAT(e.EmployeeName SEPARATOR ', ')
+    FROM Project_Team pt
+    JOIN Employees e ON pt.EmployeeID = e.EmployeeID
+    WHERE pt.ProjectID = p.ProjectID AND pt.IsTeamLead = FALSE
+)
